@@ -90,7 +90,7 @@ numRows = Selection.Row
 rowsToCheck = Selection.Rows.Count
 rowCounter = 0
 
-Set rangeToCheck = Range(Cells(numRows, 2), Cells(numRows + rowsToCheck - 1, 2))
+Set rangeToCheck = Range(Cells(numRows, 2), Cells(numRows + rowsToCheck - 1, 2)).SpecialCells(xlCellTypeVisible)
 
 For Each cell In rangeToCheck
     rowCounter = rowCounter + 1
