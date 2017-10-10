@@ -40,27 +40,43 @@ Sub CopyRowsFromAbove()
 Dim rowsToCopy As Long
 Dim numRows As Long
 Dim rng1 As Range, rng2 As Range, rng3 As Range
-Dim trg1 As Range, trg2 As Range
+Dim trg1 As Range, trg2 As Range, trg3 As Range
+Dim testCell As Range
+Dim lastRowIndex As Long
 
 numRows = Selection.Row
 rowsToCopy = Selection.Rows.Count
+lastRowIndex = firstFree(ActiveSheet, 1).Row - 1
 
-Set rng1 = Range(Cells(numRows, 1), Cells(numRows + rowsToCopy - 1, 6))     'columns 1 to 6
-Set rng2 = Range(Cells(numRows, 29), Cells(numRows + rowsToCopy - 1, 30))   'columns 29 to 30
-Set rng3 = Rows(numRows & ":" & numRows + rowsToCopy - 1)
+Set testCell = Range("A" & Selection.Row)
 
-With ActiveSheet.UsedRange
-    Set trg1 = Range("A" & .Rows.Count + 1)
-    Set trg2 = Range("AC" & .Rows.Count + 1)
-End With
+If testCell.Value <> "" Then    'if selection on old rows (based on column A)
+    Set rng1 = Range(Cells(numRows, 1), Cells(numRows + rowsToCopy - 1, 6))     'columns 1 to 6
+    Set rng2 = Range(Cells(numRows, 29), Cells(numRows + rowsToCopy - 1, 30))   'columns 29 to 30
+    Set rng3 = Rows(numRows & ":" & numRows + rowsToCopy - 1)                   'selected row formats
+    
+    Set trg1 = Range("A" & lastRowIndex)                                        'targets where to paste
+    Set trg2 = Range("AC" & lastRowIndex)
+    Set trg3 = trg1
+Else                            'if selection on new rows (based on column A)
+    Set rng1 = Range(Cells(lastRowIndex, 1), Cells(lastRowIndex, 6))            'columns 1 to 6
+    Set rng2 = Range(Cells(lastRowIndex, 29), Cells(lastRowIndex, 30))          'columns 29 to 30
+    Set rng3 = Rows(lastRowIndex)                                               'last row formats
+    
+    Set trg1 = Range("A" & lastRowIndex & ":A" & lastRowIndex + rowsToCopy)
+    Set trg2 = Range("AC" & lastRowIndex & ":AD" & lastRowIndex + rowsToCopy)
+    Set trg3 = Range("A" & lastRowIndex + 1 & ":AG" & lastRowIndex + rowsToCopy)
+End If
 
-Call CopyPaste(rng3, trg1, "formats")
-Call CopyPaste(rng1, trg1, "values")
+Call CopyPaste(rng3, trg3, "formats")   'copy formats
+Call CopyPaste(rng1, trg1, "values")    'copy values
 Call CopyPaste(rng2, trg2, "values")
+
+Range("A" & ActiveSheet.UsedRange.Rows.Count).Select
 
 End Sub
 
-Sub CopyPaste(what As Range, where As Range, mode As String)
+Sub CopyPaste(what As Range, where As Range, Optional mode As String)
 
 what.Select
 what.Copy
@@ -68,7 +84,7 @@ what.Copy
 If mode = "formats" Then
     where.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 ElseIf mode = "values" Then
-    where.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    where.PasteSpecial Paste:=xlPasteFormulas, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 Else
     where.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 End If
@@ -109,3 +125,14 @@ Next cell
 Application.ScreenUpdating = True
 Application.StatusBar = False
 End Sub
+
+Function firstFree(works As Worksheet, column As Long) As Range
+Dim cell As Range
+
+    For Each cell In works.Columns(column).Cells
+        If cell.Value = "" Then
+            Set firstFree = cell
+            Exit For
+        End If
+    Next cell
+End Function
