@@ -55,8 +55,8 @@ If testCell.Value <> "" Then    'if selection on old rows (based on column A)
     Set rng2 = Range(Cells(numRows, 29), Cells(numRows + rowsToCopy - 1, 30))   'columns 29 to 30
     Set rng3 = Rows(numRows & ":" & numRows + rowsToCopy - 1)                   'selected row formats
     
-    Set trg1 = Range("A" & lastRowIndex)                                        'targets where to paste
-    Set trg2 = Range("AC" & lastRowIndex)
+    Set trg1 = Range("A" & lastRowIndex + 1)                                      'targets where to paste
+    Set trg2 = Range("AC" & lastRowIndex + 1)
     Set trg3 = trg1
 Else                            'if selection on new rows (based on column A)
     Set rng1 = Range(Cells(lastRowIndex, 1), Cells(lastRowIndex, 6))            'columns 1 to 6
